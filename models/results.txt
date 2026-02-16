@@ -1,0 +1,4 @@
+Overall Validation Accuracy: 92.31%
+Total Classes: 20
+Validation Samples: 52
+Epochs: 100 | Batch Size: 32

@@ -1,0 +1,12 @@
+streamlit
+opencv-python
+numpy
+pandas
+tensorflow>=2.10.0
+tensorflow-hub
+scikit-learn
+pyttsx3
+SpeechRecognition
+pyaudio
+matplotlib
+tqdm

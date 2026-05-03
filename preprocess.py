@@ -13,8 +13,8 @@ def build_sequences_from_keypoints(keypoints_root='data/keypoints', out_npz='dat
         files = sorted(keypoints_root.joinpath(c).glob('*.npy'))
         # load and convert to sequence list
         kps = [np.load(str(f)) for f in files]
-        # For each contiguous window of length SEQ_LEN create sequence (non-overlapping stride SEQ_LEN)
-        for i in range(0, max(1, len(kps) - SEQ_LEN + 1), SEQ_LEN):
+        # For each contiguous window of length SEQ_LEN create sequence (overlapping stride 5 for more data)
+        for i in range(0, max(1, len(kps) - SEQ_LEN + 1), 5):
             seq = kps[i:i+SEQ_LEN]
             if len(seq) != SEQ_LEN:
                 continue

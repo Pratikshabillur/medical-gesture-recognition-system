@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual Environment
+venv/
+
+# Data (optional if large)
+data/
+
+# Models (optional if large)
+models/
+
+# OS / IDE
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

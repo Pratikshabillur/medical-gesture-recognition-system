@@ -27,6 +27,11 @@ def run_realtime():
     cap = cv2.VideoCapture(0)
     seq = []
     SEQ_LEN = 30
+    CONFIDENCE_THRESHOLD = 0.85  # Only accept predictions above 85% confidence
+    PREDICTION_BUFFER_SIZE = 5   # Require 5 consecutive same predictions
+    prediction_buffer = []
+    last_stable_label = "Waiting..."
+
     try:
         while True:
             ret, frame = cap.read()
@@ -44,13 +49,28 @@ def run_realtime():
             if len(seq) > SEQ_LEN: seq.pop(0)
             if len(seq) == SEQ_LEN:
                 pred = model.predict(np.expand_dims(np.array(seq),0), verbose=0)
+                confidence = float(pred.max())
                 idx = int(pred.argmax(axis=1)[0])
                 label = le.inverse_transform([idx])[0]
 
-                # 🔥🔥 Added: Print recognized gesture in the console
-                print("Recognized:", label)
+                # Apply confidence threshold and smoothing
+                if confidence >= CONFIDENCE_THRESHOLD:
+                    prediction_buffer.append(label)
+                    if len(prediction_buffer) > PREDICTION_BUFFER_SIZE:
+                        prediction_buffer.pop(0)
 
-                cv2.putText(frame, label, (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0),2)
+                    # Only change label if we have consistent predictions
+                    if len(prediction_buffer) == PREDICTION_BUFFER_SIZE and \
+                       all(p == prediction_buffer[0] for p in prediction_buffer):
+                        if last_stable_label != label:
+                            last_stable_label = label
+                            print(f"Recognized: {label} (confidence: {confidence:.2%})")
+                else:
+                    prediction_buffer = []  # Reset buffer on low confidence
+
+                display_text = f"{last_stable_label} ({confidence:.0%})" if confidence >= CONFIDENCE_THRESHOLD else f"Low confidence ({confidence:.0%})"
+                color = (0, 255, 0) if confidence >= CONFIDENCE_THRESHOLD else (0, 0, 255)
+                cv2.putText(frame, display_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
 
             # draw keypoints
             for i, (y,x,s) in enumerate(kp):
